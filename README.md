@@ -66,7 +66,7 @@ SDK for Bank Emulator (https://github.com/fintech-fab/bank-emulator)
 			// Cancellation process your payment 'refund'
 
 			$gatewayRefund = Gateway::newInstance($config);
-			$successRefund = $gatewayRefund->complete($params);
+			$successRefund = $gatewayRefund->refund($params);
 		}
 
 	}
