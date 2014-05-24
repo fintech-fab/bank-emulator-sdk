@@ -53,7 +53,7 @@ class GatewayTest extends \PHPUnit_Framework_TestCase
 			'cardNumber'   => '4532274626451231',
 			'expiredYear'  => '15',
 			'expiredMonth' => '12',
-			'cvcCode'      => '333',
+			'cvcCode'      => '777',
 		);
 		$result = $this->gateway->auth($params);
 		$this->assertTrue($result, $this->gateway->getError());
@@ -106,7 +106,7 @@ class GatewayTest extends \PHPUnit_Framework_TestCase
 			'cardNumber'   => '4532274626451231',
 			'expiredYear'  => '15',
 			'expiredMonth' => '12',
-			'cvcCode'      => '333',
+			'cvcCode'      => '777',
 		);
 		$result = $this->gateway->sale($params);
 		$this->assertTrue($result, $this->gateway->getError());
@@ -122,10 +122,10 @@ class GatewayTest extends \PHPUnit_Framework_TestCase
 
 		$this->makeGateway();
 		$params = array(
-			'orderId'      => mt_rand(1, 9999999),
-			'orderName'    => 'Order from PhpUnit',
-			'orderDesc'    => '',
-			'orderAmount'  => sprintf("%01.2f", mt_rand(100, 99999) / 100),
+			'orderId'     => mt_rand(1, 9999999),
+			'orderName'   => 'Order from PhpUnit',
+			'orderDesc'   => '',
+			'orderAmount' => sprintf("%01.2f", mt_rand(100, 99999) / 100),
 		);
 		$result = $this->gateway->endpoint($params);
 		$this->assertTrue($result && is_array($result), $this->gateway->getError());
@@ -133,6 +133,30 @@ class GatewayTest extends \PHPUnit_Framework_TestCase
 		$this->assertEquals($params['orderId'], $result['order']);
 		$this->assertEquals($this->config['terminalId'], $result['term']);
 		$this->assertNotEmpty($result['sign']);
+
+	}
+
+	public function testSaleWithAuthorization()
+	{
+		// sale
+
+		$this->makeGateway();
+		$params = array(
+			'orderId'      => mt_rand(1, 9999999),
+			'orderName'    => 'Order from PhpUnit',
+			'orderDesc'    => '',
+			'orderAmount'  => sprintf("%01.2f", mt_rand(100, 99999) / 100),
+			'cardNumber'   => '4532274626451231',
+			'expiredYear'  => '15',
+			'expiredMonth' => '12',
+			'cvcCode'      => '333',
+		);
+		$result = $this->gateway->sale($params);
+		$this->assertTrue($result, $this->gateway->getError());
+
+		$this->assertEquals('00', $this->gateway->getResultRC());
+		$this->assertEquals('auth', $this->gateway->getResultStatus());
+		$this->assertNotEmpty('success', $this->gateway->getAuthUrl());
 
 	}
 

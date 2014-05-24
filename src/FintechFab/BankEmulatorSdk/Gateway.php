@@ -18,17 +18,6 @@ class Gateway
 	private $rawResponse;
 
 
-	private $configParams = array(
-		'terminalId'    => '',
-		'secretKey'     => '',
-		'gatewayUrl'    => '',
-		'callbackEmail' => '',
-		'shopUrl'       => '',
-		'callbackUrl'   => '',
-		'currency'      => '',
-		'strongSSL'     => true,
-	);
-
 	private static $customParams = array(
 		'auth'     => array(
 			'orderId',
@@ -339,6 +328,16 @@ class Gateway
 	/**
 	 * @return string|null
 	 */
+	public function getAuthUrl()
+	{
+		return (!empty($this->response->auth))
+			? $this->response->auth
+			: null;
+	}
+
+	/**
+	 * @return string|null
+	 */
 	public function getResultRaw()
 	{
 		return (!empty($this->rawResponse))
@@ -353,7 +352,7 @@ class Gateway
 	 * @throws Exception
 	 * @return Gateway
 	 */
-	public static function newInstance($config)
+	public static function newInstance($config = null)
 	{
 
 		if (!function_exists('curl_init')) {
@@ -361,39 +360,12 @@ class Gateway
 		}
 
 		$gateway = new self();
-		$gateway->setConfig($config);
+
+		if (null !== $config) {
+			Config::setAll($config);
+		}
 
 		return $gateway;
-
-	}
-
-	/**
-	 * Set config parameters
-	 *
-	 * @param $config
-	 */
-	private function setConfig($config)
-	{
-		foreach ($config as $key => $value) {
-			$this->setConfigParam($key, $value);
-		}
-
-	}
-
-	/**
-	 * @param string $name
-	 * @param string $value
-	 *
-	 * @throws GatewayException
-	 */
-	public function setConfigParam($name, $value)
-	{
-
-		if (!isset($this->configParams[$name])) {
-			throw new GatewayException('User undefined config param [' . $name . ']');
-		}
-
-		$this->configParams[$name] = $value;
 
 	}
 
@@ -411,7 +383,7 @@ class Gateway
 
 		ksort($params);
 		$str4sign = implode('|', $params);
-		$sign = md5($str4sign . $type . $this->configParams['secretKey']);
+		$sign = md5($str4sign . $type . Config::get('secretKey'));
 
 		return $sign;
 
@@ -443,7 +415,7 @@ class Gateway
 			}
 		}
 
-		foreach ($this->configParams as $key => $value) {
+		foreach (Config::getAll() as $key => $value) {
 			if(
 				in_array($type, array('complete', 'refund')) &&
 				in_array($key, array('callbackUrl', 'callbackEmail', 'shopUrl'))
@@ -501,10 +473,9 @@ class Gateway
 	private function request($type, $requestParams)
 	{
 		$this->cleanup();
-
 		$curl = new Curl();
-		$curl->setCheckCertificates($this->configParams['strongSSL']);
-		$curl->post($this->configParams['gatewayUrl'], array(
+		$curl->setCheckCertificates(Config::get('strongSSL'));
+		$curl->post(Config::get('gatewayUrl'), array(
 			'type'  => $type,
 			'input' => $requestParams,
 		));
