@@ -247,6 +247,16 @@ class Gateway
 	/**
 	 * @return string|null
 	 */
+	public function getResultType()
+	{
+		return (!empty($this->response->type))
+			? $this->response->type
+			: null;
+	}
+
+	/**
+	 * @return string|null
+	 */
 	public function getResultTerminalId()
 	{
 		return (!empty($this->response->term))

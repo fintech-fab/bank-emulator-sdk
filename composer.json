@@ -3,8 +3,9 @@
 	"type": "library",
 	"description": "PHP SDK for Bank Emulator Gateway",
 	"keywords": ["payments", "finance", "e-commerce", "sdk"],
-	"homepage": "http://fintech-fab.ru/",
+	"homepage": "http://fintech-fab.ru/bank/emulator/demo",
 	"license": "MIT",
+	"version": "0.3",
 	"authors": [
 		{
 			"name": "Mikhail Novikov",
